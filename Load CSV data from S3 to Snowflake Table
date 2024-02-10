@@ -1,0 +1,57 @@
+use role accountadmin;
+
+CREATE or REPLACE STORAGE INTEGRATION aws_sf_data
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = 'S3'
+  ENABLED = TRUE
+  STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::704526618566:role/r2schools'
+  STORAGE_ALLOWED_LOCATIONS = ('s3://r2sf-snowflake-data/');
+
+  desc integration aws_sf_data;
+
+ grant usage on integration aws_sf_data to role sysadmin;
+
+ ---Create File format object---
+ use role sysadmin;
+
+ use database ecommerce_db;
+ create schema ecommerce_dev;
+
+ create or replace table lineitem cluster by (L_SHIPDATE)
+ as select * from SNOWFLAKE_SAMPLE_DATA.TPCH_SF1000.lineitem limit 0;
+
+ select * from lineitem;
+-------------
+
+CREATE FILE FORMAT csv_load_format
+    TYPE = 'CSV' 
+    COMPRESSION = 'AUTO' 
+    FIELD_DELIMITER = ',' 
+    RECORD_DELIMITER = '\n' 
+    SKIP_HEADER =1 
+    FIELD_OPTIONALLY_ENCLOSED_BY = '\042' 
+    TRIM_SPACE = FALSE 
+    ERROR_ON_COLUMN_COUNT_MISMATCH = TRUE 
+    ESCAPE = 'NONE' 
+    ESCAPE_UNENCLOSED_FIELD = '\134' 
+    DATE_FORMAT = 'AUTO' 
+    TIMESTAMP_FORMAT = 'AUTO';
+
+    -----Create Stage Object----
+create stage stg_lineitem_csv_dev
+storage_integration = aws_sf_data
+url = 's3://r2sf-snowflake-data/ecommerce_dev/lineitem/lineitem_csv/'
+file_format = csv_load_format;
+
+list @stg_lineitem_csv_dev
+
+----Copy csv data from S3 bucket to Snowflake--------
+copy into lineitem from @stg_lineitem_csv_dev
+ON_ERROR = ABORT_STATEMENT;
+
+select count(*) from lineitem;
+
+select * from lineitem limit 10;
+
+show integrations;
+ 
