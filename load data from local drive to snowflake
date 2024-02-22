@@ -1,1 +1,31 @@
+--Create database--
+create database c4_ld_ex;
+--Create table--
+create table customer(FName string,
+                                           LName string,
+                                           Email String,
+                                           Date_of_Birth Date,
+                                           City string,
+                                           country string);
+----Create file format-----
+create file format file_delim
+                                           type=csv
+                                           field_delimiter='|'
+                                           field_optionally_enclosed_by='"'
+                                           skip_header=1
+                                           date_format='yyyy-mm-dd';
+---Create Stage-----
+create stage customer_stage
+                                           file_format=file_delim;
+--Upload files to stage--
+put file://C://Users//r2schools//Downloads//Snowflake-Cookbook-master//Snowflake-Cookbook-master//Chapter03//r3//customers.csv @customer_stage;
 
+--Verify files at stage----
+list @@customer_stage;
+---COpy data from stage to snowflake table---
+use warehouse compute_wh;
+copy into customer
+from @customer_stage;
+--Verify--
+Use c4_ld_ex;
+select * from customer;
