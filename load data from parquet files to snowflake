@@ -32,9 +32,9 @@ select $1 from @c3_r4_stage;
 ---Copy data from parquet files to snowflake tables---
 insert into transactions
 select 
-$1:_COL_0:DATE,
-$1:_COL_1:NUMBER,
-$1:_COL_2:NUMBER,
-$1:_COL_3:NUMBER
+$1:_COL_0::DATE,
+$1:_COL_1::NUMBER,
+$1:_COL_2::NUMBER,
+$1:_COL_3::NUMBER
 
 from @c3_r4_stage;
