@@ -1,0 +1,2 @@
+put file://C://Users//r2schools//Downloads//Snowflake-Cookbook-master//Snowflake-Cookbook-master//Chapter03//r3//customers.csv @customer_stage;
+
