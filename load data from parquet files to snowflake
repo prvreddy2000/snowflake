@@ -1,0 +1,40 @@
+create database c3_r4;
+create table transactions
+(transaction_date date,
+customer_id number(38,0),
+transaction_id number(38,0),
+amount number(38,0));
+
+---Create storage integration object----
+create storage integration s3_integration
+type=external_stage
+storage_provider=s3
+enabled = true
+storage_aws_role_arn='arn:aws:iam::704526618566:role/r2schools'
+storage_allowed_locations=('s3://r2sf-snowflake-data/');
+
+---Create file format---
+
+create file format gen_parq
+type=parquet
+compression=auto
+null_if=('MISSING','');
+--------Create Stage object----------
+create or replace stage c3_r4_stage
+storage_integration=s3_integration
+url='s3://r2sf-snowflake-data/Snowflake-Cookbook-master/Snowflake-Cookbook-master/Chapter03/r4/'
+file_format=gen_parq;
+
+list @c3_r4_stage;
+
+select $1 from @c3_r4_stage;
+
+---Copy data from parquet files to snowflake tables---
+insert into transactions
+select 
+$1:_COL_0:DATE,
+$1:_COL_1:NUMBER,
+$1:_COL_2:NUMBER,
+$1:_COL_3:NUMBER
+
+from @c3_r4_stage;
