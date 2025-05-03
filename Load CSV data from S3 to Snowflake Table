@@ -1,10 +1,26 @@
+-- Step-1 ---- : Create an IAM Role in AWS 
+
 use role accountadmin;
 
-CREATE or REPLACE STORAGE INTEGRATION aws_sf_data
+grant usage on database ecommerce_db to role sysadmin;
+grant usage on schema ecommerce_db.ecommerce_liv to role sysadmin;
+grant select on future tables in schema  ecommerce_db.ecommerce_liv to role sysadmin;
+
+create database if not exists ecommerce_db;
+
+create schema if not exists ecommerce_liv;
+
+use schema ecommerce_db.ecommerce_liv;
+
+use warehouse compute_wh;
+GRANT USAGE ON WAREHOUSE compute_wh TO role sysadmin;
+grant select on all tables in schema SNOWFLAKE_SAMPLE_DATA.TPCH_SF1000 to role sysadmin;
+
+ CREATE or REPLACE STORAGE INTEGRATION aws_sf_data
   TYPE = EXTERNAL_STAGE
   STORAGE_PROVIDER = 'S3'
   ENABLED = TRUE
-  STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::704526618566:role/r2schools'
+  STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::704526618566:role/sf-aws2025'
   STORAGE_ALLOWED_LOCATIONS = ('s3://r2sf-snowflake-data/');
 
   desc integration aws_sf_data;
@@ -12,13 +28,15 @@ CREATE or REPLACE STORAGE INTEGRATION aws_sf_data
  grant usage on integration aws_sf_data to role sysadmin;
 
  ---Create File format object---
- use role sysadmin;
-
- use database ecommerce_db;
- create schema ecommerce_dev;
+  use database ecommerce_db;
+create schema ecommerce_dev;
+ use schema ecommerce_dev;
+use warehouse compute_wh;
+ select * from SNOWFLAKE_SAMPLE_DATA.TPCH_SF1000.lineitem limit 0;
 
  create or replace table lineitem cluster by (L_SHIPDATE)
  as select * from SNOWFLAKE_SAMPLE_DATA.TPCH_SF1000.lineitem limit 0;
+
 
  select * from lineitem;
 -------------
@@ -54,4 +72,3 @@ select count(*) from lineitem;
 select * from lineitem limit 10;
 
 show integrations;
- 
