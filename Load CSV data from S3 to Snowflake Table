@@ -28,6 +28,7 @@ grant select on all tables in schema SNOWFLAKE_SAMPLE_DATA.TPCH_SF1000 to role s
  grant usage on integration aws_sf_data to role sysadmin;
 
  ---Create File format object---
+use role sysadmin;
   use database ecommerce_db;
 create schema ecommerce_dev;
  use schema ecommerce_dev;
